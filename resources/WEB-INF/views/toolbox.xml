@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<toolbox>
+    <!--这个配置文件可以让我们在vm中使用后台java类中定义的方法.-->
+    <!--<tool>-->
+        <!--<key>UrlUtil</key>-->
+        <!--<class>com.nali.common.util.UrlUtil</class>-->
+        <!--<scope>application</scope>-->
+    <!--</tool>-->
+    <!--<tool>-->
+        <!--<key>VersionUtil</key>-->
+        <!--<class>com.ximalaya.shop.api.domain.util.VersionUtil</class>-->
+        <!--<scope>application</scope>-->
+    <!--</tool>-->
+</toolbox>

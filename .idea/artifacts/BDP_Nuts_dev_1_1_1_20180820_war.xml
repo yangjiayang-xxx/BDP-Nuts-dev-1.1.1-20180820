@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="war" name="BDP-Nuts-dev-1.1.1-20180820:war">
+    <output-path>$PROJECT_DIR$/out/artifacts/BDP_Nuts_dev_1_1_1_20180820_war</output-path>
+    <root id="archive" name="BDP-Nuts-dev-1.1.1-20180820_war.war">
+      <element id="artifact" artifact-name="BDP-Nuts-dev-1.1.1-20180820:war exploded" />
+    </root>
+  </artifact>
+</component>

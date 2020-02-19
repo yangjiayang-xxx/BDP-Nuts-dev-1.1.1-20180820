@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	    http://www.springframework.org/schema/beans/spring-beans.xsd
+	    http://www.springframework.org/schema/security
+	    http://www.springframework.org/schema/security/spring-security.xsd"
+       default-lazy-init="true">
+
+    <bean class="com.nuts.framework.config.SpringConfig"/>
+
+    <security:http auto-config="false" servlet-api-provision="true" entry-point-ref="entryPoint">
+        <security:access-denied-handler error-page="/WEB-INF/jsp/exception/401.jsp"/>
+        <security:intercept-url pattern="/*" access="isAuthenticated()"/>
+
+        <!--CAS核心过滤器-->
+        <security:custom-filter ref="pretreatmentAuthenticationProcessingFilter" position="FORM_LOGIN_FILTER"/>
+
+        <!--权限过滤器-->
+        <security:custom-filter ref="centitPowerFilter" before="FILTER_SECURITY_INTERCEPTOR"/>
+
+        <!--登出过滤器-->
+        <security:custom-filter ref="requestSingleLogoutFilter" before="LOGOUT_FILTER"/>
+        <security:custom-filter ref="singleLogoutFilter" before="CAS_FILTER"/>
+        <security:csrf disabled="true"/>
+        <security:headers>
+            <security:frame-options policy="ALLOW-FROM" strategy="regexp" value=".*"/>
+        </security:headers>
+        <security:session-management>
+            <security:concurrency-control session-registry-ref="centitSessionRegistry"/>
+        </security:session-management>
+    </security:http>
+
+
+    <!-- 访问决策器，决定某个用户具有的角色，是否有足够的权限去访问某个资源 -->
+    <bean id="centitAccessDecisionManagerBean" class="com.centit.framework.security.DaoAccessDecisionManager"></bean>
+
+    <bean id="centitSecurityMetadataSource"
+          class="com.centit.framework.security.DaoInvocationSecurityMetadataSource"></bean>
+
+    <bean id="centitPowerFilter" class="com.centit.framework.security.DaoFilterSecurityInterceptor">
+        <property name="authenticationManager" ref="authenticationManager"/>
+        <!-- centitAccessDecisionManagerBean hostIpFilterDecisionManagerBean -->
+        <property name="accessDecisionManager" ref="centitAccessDecisionManagerBean"/>
+        <!-- centitSecurityMetadataSource hostIpSecurityMetadataSource -->
+        <property name="securityMetadataSource" ref="centitSecurityMetadataSource"/>
+        <property name="sessionRegistry" ref="centitSessionRegistry"/>
+        <property name="allResourceMustBeAudited" value="true"/>
+    </bean>
+
+    <bean id="integrationEnvironment" class="com.centit.framework.ip.service.impl.JsonIntegrationEnvironment"/>
+
+    <bean id="csrfTokenRepository" class="org.springframework.security.web.csrf.HttpSessionCsrfTokenRepository"/>
+
+    <bean id="singleLogoutFilter" class="org.jasig.cas.client.session.SingleSignOutFilter">
+        <property name="casServerUrlPrefix" value="${cas.home}"/>
+    </bean>
+
+    <bean id="requestSingleLogoutFilter" class="org.springframework.security.web.authentication.logout.LogoutFilter">
+        <!--退出登录后，重定向到哪个页面-->
+        <constructor-arg value="${cas.home}/logout?service=${local.home}"/>
+        <constructor-arg>
+            <list>
+                <bean class="org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler"/>
+            </list>
+        </constructor-arg>
+    </bean>
+</beans>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app id="FHBDP"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xmlns="http://java.sun.com/xml/ns/javaee"
+		 xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+		 version="3.0">
+	<display-name>烽火基础开发平台</display-name>
+
+	<context-param>
+		<param-name>contextConfigLocation</param-name>
+		<param-value>classpath:config/spring/nuts-spring-*.xml,<!--脚手架Spring配置-->
+					 classpath:config/**/*-spring.xml<!--业务Spring配置-->
+		</param-value>
+	</context-param>
+
+
+	<!--Spring 监听-->
+	<listener>
+		<listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+	</listener>
+
+	<!-- Spring 编码过滤器 -->
+	<filter>
+		<filter-name>encodingFilter</filter-name>
+		<filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+		<init-param>
+			<param-name>encoding</param-name>
+			<param-value>UTF-8</param-value>
+		</init-param>
+		<init-param>
+			<param-name>forceEncoding</param-name>
+			<param-value>true</param-value>
+		</init-param>
+	</filter>
+	<filter-mapping>
+		<filter-name>encodingFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+		<dispatcher>REQUEST</dispatcher>
+		<dispatcher>FORWARD</dispatcher>
+	</filter-mapping>
+
+	<!--spring security filter-->
+	<filter>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<filter-class>com.nuts.framework.config.NutsDelegatingFilterProxy</filter-class>
+		<async-supported>true</async-supported>
+	</filter>
+	<filter-mapping>
+		<filter-name>springSecurityFilterChain</filter-name>
+		<url-pattern>/*</url-pattern>
+	</filter-mapping>
+
+	<!--spring-mvc 请求分发-->
+	<servlet>
+		<servlet-name>springServlet</servlet-name>
+		<servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+		<init-param>
+			<param-name>contextConfigLocation</param-name>
+			<!-- 置空，全部通过父容器加载，不可以不配置，如果不配置，它会去加载默认的配置文件，找不到然后报错 -->
+			<param-value></param-value>
+		</init-param>
+		<load-on-startup>1</load-on-startup>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>springServlet</servlet-name>
+		<url-pattern>/</url-pattern>
+	</servlet-mapping>
+
+	<!--必须放在最后，否则会被CAS的filter重置了-->
+	<!-- 修正Spring无法获取put中的参数的问题-->
+	<filter>
+		<filter-name>hiddenHttpMethodFilter</filter-name>
+		<filter-class>org.springframework.web.filter.HiddenHttpMethodFilter</filter-class>
+	</filter>
+	<filter-mapping>
+		<filter-name>hiddenHttpMethodFilter</filter-name>
+		<url-pattern>/*</url-pattern>
+		<servlet-name>mcpMvc</servlet-name>
+	</filter-mapping>
+
+
+	<!--gdk监控，可通过该url来查看http://{{ip}}:{{port}}/{{project}}/gdk_db_monitor/index.jsp-->
+	<servlet>
+		<servlet-name>gdk-db-monitor</servlet-name>
+		<servlet-class>com.gdk.jdbc.monitor.MonitorServlet</servlet-class>
+		<init-param>
+			<!--
+                配置慢SQL查询时间上限阀值，只有当SQL执行时间超过这个阀值才会被记录。
+                默认：100, 单位:毫秒ms
+            -->
+			<param-name>long_query_time</param-name>
+			<param-value>500</param-value>
+		</init-param>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>gdk-db-monitor</servlet-name>
+		<url-pattern>/gdk_db_monitor/*</url-pattern>
+	</servlet-mapping>
+
+
+
+	<!--druid监控页面-->
+	<servlet>
+		<servlet-name>DruidStatView</servlet-name>
+		<servlet-class>com.alibaba.druid.support.http.StatViewServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>DruidStatView</servlet-name>
+		<url-pattern>/druid/*</url-pattern>
+	</servlet-mapping>
+
+	<welcome-file-list>
+		<welcome-file>index.jsp</welcome-file>
+	</welcome-file-list>
+
+	<session-config>
+		<session-timeout>600</session-timeout>
+	</session-config>
+</web-app>

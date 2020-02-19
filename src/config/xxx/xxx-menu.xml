@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<!--
+	##菜单结构如下如所示：
+		***     					父级系统顶级菜单（只能有一个节点，下面只能挂一个子系统，即当前系统顶级菜单）
+			****     					当前系统顶级菜单（只能有一个节点，下面可挂多个子模块）
+				***  						子模块菜单1
+					***   						按钮操作1-1
+					***   						按钮操作1-2
+				*** 						子模块菜单2
+					***   						按钮操作2-1
+					***   						按钮操作2-2
+				***   						子模块菜单3
+					***   						按钮操作3-1
+					***   						按钮操作3-2
+
+-->
+
+<!--
+	##属性说明
+	menu	菜单配置项
+		optId	菜单编号
+		optName		菜单中文名称
+		optUrl		页面路径，目录不用配置该项
+		isInToolbar		是否显示,填Y或N。【可为空，默认显示】
+		icon 图片路径
+	button		按钮配置项.如果没有，可为空
+		optName		按钮中文名称
+		optMethod	英文名称，可用于判断是否有该按钮的权限
+		optDesc		按钮描述信息，【可为空】
+		optUrl		请求路径。该路径与菜单的optUrl组合成一个完整的url
+		optReq		请求方式。填C、U、R、D。分别表示POST、PUT、GET、DELETE。【可为空，默认不区分】
+		isPublic	是否将该按钮赋给公共角色，Y是，N否（默认）
+-->
+
+<config>
+    <!--父级系统菜单编号，可为空。如果不为空，会把本系统的所有菜单挂到该菜单下
+    （适用场景：将本系统的菜单全部挂载到其他某个系统中）；如果为空，会将menus里的最外层菜单作为顶级菜单。-->
+    <!--<parent>xxxx</parent>-->
+
+    <menus>
+        <!--当前系统的顶级菜单，optid必须要与system.properties中的ip.topoptid配置项内容保持一致。否则在当前系统中调用获取菜单接口时，取不到数据-->
+        <!--<menu optId="top" optName="测试顶级目录" isInToolbar="Y">-->
+            <!--<menu optId="dir1" optName="一级目录-1" isInToolbar="Y">-->
+                <!--<menu optId="son1" optName="子菜单1" optUrl="/users/add.jsp" isInToolbar="Y" icon="">-->
+                    <!--<button optName="预定" optMethod="add" optDesc="预定会议室" optUrl="/page" optReq="CRUD" isPublic="Y"/>-->
+                    <!--<button optName="释放" optMethod="delete" optDesc="取消预定" optUrl="/meeting/room" optReq="D"/>-->
+                    <!--<button optName="修改" optMethod="update" optDesc="修改预定的会议室" optUrl="/meeting/room" optReq="U"/>-->
+                    <!--<button optName="查询" optMethod="query" optDesc="查询列表" optUrl="/meeting/room" optReq="R"/>-->
+                <!--</menu>-->
+                <!--<menu optId="dir2" optName="一级目录-2" optUrl="/notice/center/" isInToolbar="Y" icon="">-->
+                <!--</menu>-->
+                <!--<menu optId="dir3" optName="一级目录-3" optUrl="/my/apply/" isInToolbar="N">-->
+                <!--</menu>-->
+            <!--</menu>-->
+        <!--</menu>-->
+    </menus>
+</config>
+
+        <!--注:-->
+        <!--1、	本程序仅支持新增菜单和修改菜单、按钮非主键的操作，如需删除菜单或修改菜单optId、按钮optMethod，需要手动到鉴权平台修改。-->
+        <!--2、	为防止多次重复刷菜单，菜单配置文件解析后会被重命名成xxx-menu.xml_bak文件。如需重复执行，请注意修改classpath:/config/menus/下的文件名。-->
+        <!--3、	如果多个菜单配置文件，<parent>节点只能在一个配置文件中存在，否则，如果不一致会被覆盖。-->
+        <!--4、	<parent>节点可为空。如果有值，必须存在于鉴权平台已有菜单。否则，所有菜单均不会显示在鉴权平台的菜单列表中。-->
+        <!--5、	<parent>节点如果有值，系统会自动给菜单和按钮的optUrl加上ip、端口、工程名等前缀，这些值会从system.properties文件中的local.home中的配置项中读取。-->

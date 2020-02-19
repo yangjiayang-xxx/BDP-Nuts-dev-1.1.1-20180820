@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="bdp-nuts" basedir="." default="tar">
+
+    <property file="build.properties"/>
+    <!--源码目录-->
+    <property name="source.dir" value="${basedir}"/>
+    <!--打包目录-->
+    <property name="build.dir" value="${basedir}/ant-build"/>
+    <!--编译的文件存放目录-->
+    <property name="classes.dir" value="${build.dir}/${package.name}-${package.version}/webapp/WEB-INF/classes" />
+    <!--编译依赖的lib包目录-->
+    <property name="lib.dir" value="${basedir}/resources/WEB-INF/lib" />
+    <!--目标包名-->
+    <!--jar包名-->
+    <property name="jar.package.name" value="${package.name}-${package.version}" />
+
+    <!--打包日期-->
+    <tstamp>
+        <format property="touch.date" pattern="yyyyMMdd"/>
+    </tstamp>
+    <!--tar包名-->
+    <property name="tar.package.name" value="${package.name}-install-runtime-${package.version}-allsystem-${touch.date}" />
+
+    <!-- 程序用到的第三方JAR包 -->
+    <path id="lib.classpath">
+        <fileset dir="${lib.dir}">
+            <include name="*.jar" />
+        </fileset>
+    </path>
+
+    <!--第一步：将java文件编译到ant-build目录下-->
+    <target name="javac">
+        <!--先清空打包目录-->
+        <delete dir="${build.dir}"/>
+        <mkdir dir="${build.dir}"/>
+
+        <!--将src目录编译-->
+        <mkdir dir="${classes.dir}"/>
+        <javac srcdir="${source.dir}/src" destdir="${classes.dir}" encoding="UTF-8" debug="true" debuglevel="lines,vars,source" includeantruntime="on">
+            <classpath refid="lib.classpath" />
+        </javac>
+    </target>
+
+
+    <target name="jar" depends="javac">
+        <!--第二步：将framework编译后的目录打成jar包-->
+        <jar destfile="${build.dir}\${jar.package.name}.jar" basedir="${classes.dir}"  encoding="utf-8"/>
+        <delete dir="${build.dir}/${package.name}-${package.version}"/>
+    </target>
+
+    <target name="tar" depends="jar">
+
+        <!--第三步：将整个目录打成tar包。压缩时使用GBK编码，否则文件名乱码-->
+        <tar destfile="${build.dir}/${tar.package.name}.tar.gz"  compression="gzip">
+            <zipfileset dir="${source.dir}" includes="install.sh" prefix="${package.name}-install-${package.version}"/>
+            <zipfileset dir="${source.dir}" includes="install_config.sh" prefix="${package.name}-install-${package.version}"/>
+            <zipfileset dir="${source.dir}" includes="globe.common.conf" prefix="${package.name}-install-${package.version}"/>
+            <zipfileset dir="${build.dir}" includes="${jar.package.name}.jar" prefix="${package.name}-install-${package.version}/webapp/WEB-INF/lib"/>
+            <zipfileset dir="${source.dir}/src" excludes="com/**" prefix="${package.name}-install-${package.version}/webapp/WEB-INF/classes"/>
+            <zipfileset dir="${basedir}/resources" includes="**" prefix="${package.name}-install-${package.version}/webapp/"/>
+        </tar>
+    </target>
+</project>
